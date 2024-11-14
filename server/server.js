@@ -1,8 +1,13 @@
+// server.js
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors'); // Import cors
 require('dotenv').config();
 
 const app = express();
+
+// Enable CORS for all routes
+app.use(cors());
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -12,27 +17,11 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection failed:', err));
 
+// Import routes
+const authRoutes = require('./routes/auth');
 
-const TestSchema = new mongoose.Schema({
-  name: String,
-});
-
-const TestModel = mongoose.model('Test', TestSchema);
-
-// Route to test database connection
-app.get('/test-db', async (req, res) => {
-  try {
-    // Insert a test document
-    const testDoc = new TestModel({ name: 'Test Document' });
-    await testDoc.save();
-
-    // Fetch the inserted document from the database
-    const result = await TestModel.find();
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: 'Database operation failed', details: error.message });
-  }
-});
+// Use routes
+app.use('/api', authRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
