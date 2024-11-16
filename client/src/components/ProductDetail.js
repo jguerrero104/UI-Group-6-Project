@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../CartContext'; // Import useCart
 import { AuthContext } from '../AuthContext'; // Import AuthContext
+import { toast } from 'react-toastify'; // Import toast for notifications
 import api from '../api';
 
 const ProductDetail = () => {
@@ -30,11 +31,10 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (user) {
-      // User is logged in, add product to cart
       addToCart(product);
-      alert(`Added ${product.name} to the cart!`);
+      toast.success(`${product.name} added to your cart!`, { position: 'top-center', autoClose: 2000 }); // Success toast
     } else {
-      // User is not logged in, redirect to login
+      toast.warn('You must log in to add items to the cart!', { position: 'top-center', autoClose: 2000 }); // Warning toast
       navigate('/login');
     }
   };
