@@ -9,6 +9,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Profile from './components/Profile';
 import Cart from './components/Cart';
+import Contact from './components/Contact'; // Import Contact component
 import NotFound from './components/NotFound'; // Optional: Add a 404 Not Found component
 import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Import Toast styles
@@ -40,6 +41,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/contact" element={<Contact />} /> {/* Contact route */}
             <Route path="*" element={<NotFound />} /> {/* 404 route */}
           </Routes>
         </div>
