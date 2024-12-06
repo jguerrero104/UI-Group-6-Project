@@ -1,23 +1,25 @@
-// server/routes/order.js
 const express = require('express');
-const Order = require('../models/Order');
+const { verifyToken } = require('./auth'); // Middleware from auth.js
+const Order = require('../models/Order'); // Ensure this is imported correctly
+const { createOrder, getOrderHistory } = require('../controllers/orderController');
 
 const router = express.Router();
 
-// Route to handle checkout and create an order
-router.post('/checkout', async (req, res) => {
-  const { items, total } = req.body;
+// Checkout route
+router.post('/checkout', verifyToken, createOrder);
 
+// Order history route
+router.get('/history', verifyToken, getOrderHistory);
+
+// Delete all order history
+router.delete('/history', verifyToken, async (req, res) => {
   try {
-    const order = new Order({
-      items,
-      total
-    });
-    
-    await order.save();
-    res.json({ message: 'Order placed successfully', order });
+    // Delete all orders associated with the logged-in user
+    await Order.deleteMany({ user: req.user.id });
+    res.status(200).json({ message: 'Order history deleted successfully.' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to place order', details: error.message });
+    console.error('Failed to delete order history:', error);
+    res.status(500).json({ error: 'Failed to delete order history.' });
   }
 });
 

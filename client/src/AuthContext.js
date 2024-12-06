@@ -1,4 +1,3 @@
-// src/AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import api from './api';
 
@@ -28,12 +27,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post('/login', { email, password });
       localStorage.setItem('token', response.data.token);
-      
-      // Load user data immediately after setting token
-      await loadUser(); // Ensure user data is loaded and state is updated
+      await loadUser(); // Load user data immediately after setting token
     } catch (error) {
       console.error('Login failed:', error);
-      throw error; // propagate error to show messages in the component
+      throw error; // Propagate error to show messages in the component
     }
   };
 
@@ -43,13 +40,50 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Update email
+  const updateEmail = async (newEmail) => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('User not authenticated');
+    
+    try {
+      const response = await api.put(
+        '/update-email',
+        { newEmail, confirmEmail: newEmail },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await loadUser(); // Reload user data to reflect the new email
+      return response.data.message;
+    } catch (error) {
+      console.error('Failed to update email:', error);
+      throw error;
+    }
+  };
+
+  // Update password
+  const updatePassword = async (oldPassword, newPassword) => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('User not authenticated');
+    
+    try {
+      const response = await api.put(
+        '/update-password',
+        { oldPassword, newPassword, confirmPassword: newPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data.message;
+    } catch (error) {
+      console.error('Failed to update password:', error);
+      throw error;
+    }
+  };
+
   // Load user on initial app load (if token exists in localStorage)
   useEffect(() => {
     loadUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateEmail, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );
